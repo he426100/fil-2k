@@ -184,5 +184,13 @@ docker exec -it fil-2k-miner-miner lotus-miner sectors status 0
 docker exec -it fil-2k-miner-miner lotus-miner sectors status --log 0
 ```
 
+22. 提交batch
+```
+# SubmitPreCommitBatch 状态
+docker exec -it fil-2k-miner-miner lotus-miner sectors batching precommit --publish-now=true
+#  SubmitCommitAggregate 状态
+docker exec -it fil-2k-miner-miner lotus-miner sectors batching commit --publish-now=true
+```
+
 参考资料
 > [FileCoin Louts本地2K开发/测试环境部署指南](https://ansheng.me/filecoin-louts-local-2k-development-test-environment-deployment-guide/)
