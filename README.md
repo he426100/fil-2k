@@ -154,6 +154,7 @@ docker run -d -it \
   -e RUST_LOG=info \
   -v /tmp/fil-2k-data:/data \
   -v /var/tmp/filecoin-proof-parameters:/var/tmp/filecoin-proof-parameters \
+  --gpus all \
   --hostname fil-2k-miner-miner \
   --name fil-2k-miner-miner \
   -p 1237:2345 \
