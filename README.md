@@ -1,10 +1,10 @@
 1. 构建镜像(官方的Dockerfile.lotus和scripts/docker-lotus-miner-entrypoint.sh有问题)
 ```
 git clone https://github.com/filecoin-project/lotus.git && cd lotus && git checkout v1.13.1
-docker build -t lotus:v1.13.1-dev --target lotus --build-arg -f Dockerfile.lotus-debug .
-docker build -t lotus-seed:v1.13.1-dev --target lotus-seed --build-arg -f Dockerfile.lotus-debug .
-docker build -t lotus-miner:v1.13.1-dev --target lotus-miner --build-arg -f Dockerfile.lotus-debug .
-docker build -t lotus-worker:v1.13.1-dev --target lotus-worker --build-arg -f Dockerfile.lotus-debug .
+docker build -t lotus:v1.13.1-dev --target lotus -f Dockerfile.lotus-debug .
+docker build -t lotus-seed:v1.13.1-dev --target lotus-seed -f Dockerfile.lotus-debug .
+docker build -t lotus-miner:v1.13.1-dev --target lotus-miner -f Dockerfile.lotus-debug .
+docker build -t lotus-worker:v1.13.1-dev --target lotus-worker -f Dockerfile.lotus-debug .
 ```
 
 2. 创建或清空相关文件
