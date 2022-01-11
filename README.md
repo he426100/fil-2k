@@ -76,7 +76,7 @@ echo $FULLNODE_API_INFO
 # 不知道为啥不能用2345端口
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/2345/http" \
-  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.30CC4nOVQfV9lt8PLf11uIv3tC5mBfujlih-BNyw_0o:/ip4/172.17.0.4/tcp/1234/http" \
+  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.ZQG6t8N4em0NmU5l8XEOL8Il6hzZimv24UbF5yyOOoc:/ip4/172.17.0.1/tcp/1234/http" \
   -e DOCKER_LOTUS_MINER_INIT=true \
   -e DOCKER_LOTUS_MINER_INIT_ARGS="--genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=/data/.genesis-sectors --pre-sealed-metadata=/data/.genesis-sectors/pre-seal-t01000.json --nosync" \
   -v /tmp/fil-2k-data:/data \
