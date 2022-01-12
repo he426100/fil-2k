@@ -13,6 +13,7 @@ docker build -t lotus-worker:v1.13.1-dev --target lotus-worker -f Dockerfile.lot
 mkdir -p /tmp/fil-2k-data && sudo chown 532:532 /tmp/fil-2k-data
 mkdir -p /tmp/fil-2k-lotus && sudo chown 532:532 /tmp/fil-2k-lotus
 mkdir -p /tmp/fil-2k-lotus-miner && sudo chown 532:532 /tmp/fil-2k-lotus-miner
+mkdir -p /var/tmp/filecoin-proof-parameters && sudo chown 532:532 /var/tmp/filecoin-proof-parameters
 # 第二次
 sudo rm -r /tmp/fil-2k-data/*
 sudo rm -r /tmp/fil-2k-lotus/*
