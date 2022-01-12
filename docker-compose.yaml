@@ -30,13 +30,11 @@ volumes:
     external: true
     name: lotus-parameters
 
-configs:
+secrets:
   lotus-config-toml:
     file: ./exported/lotus/config.toml
   lotus-miner-config-toml:
     file: ./exported/lotus-miner/config.toml
-
-secrets:
   lotus-wallet:
     file: ./exported/lotus/wallet
 
@@ -59,10 +57,9 @@ services:
       restart_policy:
         condition: on-failure
         delay: 30s
-    configs:
+    secrets:
         - source: lotus-config-toml
           target: /var/lib/lotus/config.toml
-    secrets:
         - source: lotus-wallet
           target: /tmp/wallet
     command:
@@ -71,32 +68,32 @@ services:
   #      
   # Uncomment to run miner software
   #
-  # lotus-miner:
-  #   image: he426100/lotus-miner:v1.13.1-dev
-  #   volumes:
-  #     - parameters:/var/tmp/filecoin-proof-parameters
-  #     - lotus-miner-repo:/var/lib/lotus-miner
-  #     - lotus-data-repo:/data
-  #   depends_on:
-  #     - lotus
-  #   ports:
-  #     - 1245:2345
-  #   environment:
-  #     - LOTUS_API_LISTENADDRESS=/ip4/0.0.0.0/tcp/2345/http
-  #     - FULLNODE_API_INFO=/dns/lotus/tcp/1234/http
-  #     - DOCKER_LOTUS_MINER_INIT=true
-  #     - DOCKER_LOTUS_MINER_INIT_ARGS=--genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=/data/.genesis-sectors --pre-sealed-metadata=/data/.genesis-sectors/pre-seal-t01000.json --nosync
-  #     - LOTUS_JAEGER_AGENT_HOST=jaeger
-  #     - LOTUS_JAEGER_AGENT_PORT=6831
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-  #       delay: 30s
-  #   configs:
-  #     - source: lotus-miner-config-toml
-  #       target: /var/lib/lotus-miner/config.toml
-  #   command:
-  #     - run --nosync
+  lotus-miner:
+    image: he426100/lotus-miner:v1.13.1-dev
+    volumes:
+      - parameters:/var/tmp/filecoin-proof-parameters
+      - lotus-miner-repo:/var/lib/lotus-miner
+      - lotus-data-repo:/data
+    depends_on:
+      - lotus
+    ports:
+      - 1245:2345
+    environment:
+      - LOTUS_API_LISTENADDRESS=/ip4/0.0.0.0/tcp/2345/http
+      - FULLNODE_API_INFO=/dns/lotus/tcp/1234/http
+      - DOCKER_LOTUS_MINER_INIT=true
+      - DOCKER_LOTUS_MINER_INIT_ARGS=--genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=/data/.genesis-sectors --pre-sealed-metadata=/data/.genesis-sectors/pre-seal-t01000.json --nosync
+      - LOTUS_JAEGER_AGENT_HOST=jaeger
+      - LOTUS_JAEGER_AGENT_PORT=6831
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+    secrets:
+      - source: lotus-miner-config-toml
+        target: /var/lib/lotus-miner/config.toml
+    command:
+      - run --nosync
   # lotus-worker:
   #   build:
   #     context: .

@@ -3,7 +3,7 @@
   #
   # type: string
   # env var: LOTUS_API_LISTENADDRESS
-  #ListenAddress = "/ip4/127.0.0.1/tcp/2345/http"
+  #ListenAddress = "/ip4/0.0.0.0/tcp/2345/http"
 
   # type: string
   # env var: LOTUS_API_REMOTELISTENADDRESS
@@ -319,7 +319,7 @@
   #
   # type: bool
   # env var: LOTUS_SEALING_BATCHPRECOMMITS
-  #BatchPreCommits = true
+  BatchPreCommits = false
 
   # maximum precommit batch size - batches will be sent immediately above this size
   #
@@ -343,7 +343,7 @@
   #
   # type: bool
   # env var: LOTUS_SEALING_AGGREGATECOMMITS
-  #AggregateCommits = true
+  AggregateCommits = false
 
   # maximum batched commit size - batches will be sent immediately above this size
   #
