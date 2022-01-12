@@ -7,6 +7,9 @@ docker run --rm -v `pwd`/exported:/src -v lotus-data-repo:/dest busybox /bin/sh 
 docker volume create lotus-parameters
 # 已有证明参数
 docker run --rm -v /var/tmp/filecoin-proof-parameters:/src -v lotus-parameters:/dest busybox /bin/sh -c "cp /src/* /dest/ && chown 532:532 -R /dest"
+
+# 第二次
+docker-compose down -v
 ```
 
 2. 运行
