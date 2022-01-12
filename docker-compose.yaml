@@ -85,7 +85,7 @@ services:
   #     - LOTUS_API_LISTENADDRESS=/ip4/0.0.0.0/tcp/2345/http
   #     - FULLNODE_API_INFO=/dns/lotus/tcp/1234/http
   #     - DOCKER_LOTUS_MINER_INIT=true
-  #     - DOCKER_LOTUS_MINER_INIT_ARGS="--genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=/data/.genesis-sectors --pre-sealed-metadata=/data/.genesis-sectors/pre-seal-t01000.json --nosync"
+  #     - DOCKER_LOTUS_MINER_INIT_ARGS=--genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=/data/.genesis-sectors --pre-sealed-metadata=/data/.genesis-sectors/pre-seal-t01000.json --nosync
   #     - LOTUS_JAEGER_AGENT_HOST=jaeger
   #     - LOTUS_JAEGER_AGENT_PORT=6831
   #   deploy:
