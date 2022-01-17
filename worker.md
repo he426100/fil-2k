@@ -65,7 +65,7 @@ docker run -d -it \
   -e FIL_PROOFS_USE_GPU_COLUMN_BUILDER=1 \
   -e FIL_PROOFS_USE_GPU_TREE_BUILDER=1 \
   -e RUST_LOG=info \
-  -v /minerCache/FIL_PROOFS_PARAMETER_CACHE:/var/tmp/filecoin-proof-parameters \
+  -v /var/tmp/filecoin-proof-parameters:/var/tmp/filecoin-proof-parameters \
   --gpus all \
   --hostname fil-2k-miner-worker \
   --name fil-2k-miner-worker \
