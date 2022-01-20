@@ -15,3 +15,5 @@ fi
 if [ ! -z $DOCKER_LOTUS_IMPORT_WALLET ]; then
     mkdir -p $LOTUS_PATH/keystore && /usr/local/bin/lotus-shed keyinfo import "$DOCKER_LOTUS_IMPORT_WALLET"
 fi
+
+exec /usr/local/bin/lotus $@
