@@ -137,6 +137,9 @@ COPY scripts/docker-lotus-miner-entrypoint.sh /
 
 ENV FILECOIN_PARAMETER_CACHE /var/tmp/filecoin-proof-parameters
 ENV LOTUS_MINER_PATH /var/lib/lotus-miner
+# rust log
+ENV RUST_LOG info
+ENV RUST_BACKTRACE full
 
 RUN mkdir /var/lib/lotus-miner /var/tmp/filecoin-proof-parameters
 RUN chown fc: /var/lib/lotus-miner /var/tmp/filecoin-proof-parameters
@@ -161,6 +164,9 @@ COPY --from=builder /opt/filecoin/lotus-worker /usr/local/bin/
 
 ENV FILECOIN_PARAMETER_CACHE /var/tmp/filecoin-proof-parameters
 ENV LOTUS_WORKER_PATH /var/lib/lotus-worker
+# rust log
+ENV RUST_LOG info
+ENV RUST_BACKTRACE full
 
 RUN mkdir /var/lib/lotus-worker
 RUN chown fc: /var/lib/lotus-worker
