@@ -65,6 +65,7 @@ docker run -d -it \
   -e FIL_PROOFS_USE_GPU_COLUMN_BUILDER=1 \
   -e FIL_PROOFS_USE_GPU_TREE_BUILDER=1 \
   -e RUST_LOG=info \
+  -v /tmp/fil-2k-data:/data \
   -v /var/tmp/filecoin-proof-parameters:/var/tmp/filecoin-proof-parameters \
   --gpus all \
   --hostname fil-2k-miner-worker \
@@ -74,7 +75,19 @@ docker run -d -it \
   run
 ```
 
-5. 质押
+5. worker挂载存储目录
+```
+docker exec -it fil-2k-miner-worker lotus-worker storage attach --store /data/store/t01002
+docker exec -it fil-2k-miner-worker lotus-worker info
+```
+
+6. 查看worker
+```
+docker exec -it fil-2k-miner-miner lotus-miner sealing workers
+docker exec -it fil-2k-miner-miner lotus-miner storage list
+```
+
+7. 质押
 ```
 docker exec -it fil-2k-miner-miner lotus-miner sectors pledge
 ```
