@@ -18,6 +18,7 @@ mkdir -p /workspace/tmp/fil-2k-lotus-miner && sudo chown 532:532 /workspace/tmp/
 mkdir -p /var/tmp/filecoin-proof-parameters && sudo chown 532:532 /var/tmp/filecoin-proof-parameters
 # 第二次
 sudo rm -r /workspace/tmp/fil-2k-data/*
+sudo rm -r /workspace/tmp/fil-2k-data/.genesis-sectors
 sudo rm -r /workspace/tmp/fil-2k-lotus/*
 sudo rm -r /workspace/tmp/fil-2k-lotus-miner/*
 ```
@@ -68,10 +69,10 @@ docker run -d -it \
 docker exec -it fil-2k-master-lotus lotus wallet import --as-default /data/.genesis-sectors/pre-seal-t01000.key
 docker exec -it fil-2k-master-lotus lotus wallet list
 # 查看token
-FULLNODE_API_INFO=$(docker exec -it fil-2k-master-lotus lotus auth api-info --perm admin | awk -F '=' '{print $2}')
-LOTUS_IP=$(docker exec -it fil-2k-master-lotus cat /etc/hosts | grep fil-2k-master-lotus | awk '{print $1}')
-FULLNODE_API_INFO=${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP}
-echo $FULLNODE_API_INFO
+FULLNODE_API_INFO=$(docker exec -it fil-2k-master-lotus lotus auth api-info --perm admin | awk -F '=' '{print $2}'); \
+  LOTUS_IP=$(docker exec -it fil-2k-master-lotus cat /etc/hosts | grep fil-2k-master-lotus | awk '{print $1}') ; \
+  FULLNODE_API_INFO=${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP}; \
+  echo $FULLNODE_API_INFO;
 ```
 
 8. 初始化并运行创世矿工
@@ -79,7 +80,7 @@ echo $FULLNODE_API_INFO
 # wsl2下不知道为啥不能用2345端口
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/2345/http" \
-  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.ZQG6t8N4em0NmU5l8XEOL8Il6hzZimv24UbF5yyOOoc:/ip4/172.17.0.1/tcp/1234/http" \
+  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.iXcdXIZoRqs6_qw-c0d4xROczHFwQycMMZX7coH_scQ:/ip4/172.17.0.2/tcp/1234/http" \
   -e DOCKER_LOTUS_MINER_INIT=true \
   -e DOCKER_LOTUS_MINER_INIT_ARGS="--genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=/data/.genesis-sectors --pre-sealed-metadata=/data/.genesis-sectors/pre-seal-t01000.json --nosync" \
   -v /workspace/tmp/fil-2k-data:/data \
@@ -116,15 +117,15 @@ docker run -d -it \
   daemon --genesis=/data/devgen.car --bootstrap=false
 
 # 查看token
-FULLNODE_API_INFO=$(docker exec -it fil-2k-miner-lotus lotus auth api-info --perm admin | awk -F '=' '{print $2}')
-LOTUS_IP=$(docker exec -it fil-2k-miner-lotus cat /etc/hosts | grep fil-2k-miner-lotus | awk '{print $1}')
-FULLNODE_API_INFO=${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP}
-echo $FULLNODE_API_INFO
+FULLNODE_API_INFO=$(docker exec -it fil-2k-miner-lotus lotus auth api-info --perm admin | awk -F '=' '{print $2}'); \
+  LOTUS_IP=$(docker exec -it fil-2k-miner-lotus cat /etc/hosts | grep fil-2k-miner-lotus | awk '{print $1}'); \
+  FULLNODE_API_INFO=${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP}; \
+  echo $FULLNODE_API_INFO;
 ```
 
 12. fil-2k-miner上连接到创世节点
 ```
-docker exec -it fil-2k-miner-lotus lotus net connect /ip4/172.17.0.4/tcp/35865/p2p/12D3KooWRfAohghF392iKGwLz5rqK6TkjkJzaLxjNKFU7igg624q
+docker exec -it fil-2k-miner-lotus lotus net connect /ip4/172.17.0.2/tcp/34879/p2p/12D3KooWBSDyTJAtHF4F1wXd8L1hbcXR3H62oaV1DJjSBNcpjTVf
 ```
 
 13. 查看当前节点的同步状态
@@ -151,7 +152,7 @@ docker exec -it fil-2k-miner-lotus lotus wallet list
 ```
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/2345/http" \
-  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.D1gU6utQNWb8BroSMu0ZL13fAksm9PQzGRSxSLNi5pg:/ip4/172.17.0.6/tcp/1234/http" \
+  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.Ru0z9bu6kL74h3UMyMGlesdXrsc2OzOSZDfkBycnhcM:/ip4/172.17.0.4/tcp/1234/http" \
   -e DOCKER_LOTUS_MINER_INIT=true \
   -e DOCKER_LOTUS_MINER_INIT_ARGS="--sector-size=2KiB" \
   -e RUST_LOG=info \
