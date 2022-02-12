@@ -2,7 +2,7 @@
 ```
 docker exec -it fil-2k-miner-miner mkdir /data/t01002/
 docker exec -it fil-2k-miner-miner cp /var/lib/lotus-miner/config.toml /data/t01002/
-vim /tmp/fil-2k-data/config.toml
+sudo vim /tmp/fil-2k-data/t01002/config.toml
 ```
 ```
 [Storage]
@@ -29,7 +29,7 @@ vim /tmp/fil-2k-data/config.toml
 ```
 ```
 docker exec -it fil-2k-miner-miner cp /var/lib/lotus-miner/sectorstore.json /data/t01002/
-vim /tmp/fil-2k-data/t01002/sectorstore.json
+sudo vim /tmp/fil-2k-data/t01002/sectorstore.json
 ```
 ```
 {
@@ -49,13 +49,17 @@ docker restart fil-2k-miner-miner
 
 2. miner挂载/data/store当作存储目录
 ```
+docker exec -it fil-2k-miner-miner mkdir -p /data/store/t01002
 docker exec -it fil-2k-miner-miner lotus-miner storage attach --init --store /data/store/t01002
 docker exec -it fil-2k-miner-miner lotus-miner storage list
 ```
 
 3. 查看miner token
 ```
-docker exec -it fil-2k-miner-miner lotus-miner auth api-info --perm admin
+MINER_API_INFO=$(docker exec -it fil-2k-miner-miner lotus-miner auth api-info --perm admin | awk -F '=' '{print $2}'); \
+  MINER_IP=$(docker exec -it fil-2k-miner-miner cat /etc/hosts | grep fil-2k-miner-miner | awk '{print $1}') ; \
+  MINER_API_INFO=${MINER_API_INFO/0.0.0.0/$MINER_IP}; \
+  echo $MINER_API_INFO;
 ```
 
 4. 启动worker
@@ -71,7 +75,7 @@ docker run -d -it \
   --hostname fil-2k-miner-worker \
   --name fil-2k-miner-worker \
   -p 1238:3456 \
-  lotus-worker:v1.13.1-dev \
+  lotus-worker:v1.13.0-dev \
   run
 ```
 
