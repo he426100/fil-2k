@@ -26,7 +26,7 @@ sudo rm -r /tmp/fil-2k-lotus-miner/*
 ```
 docker run --rm \
   -v /tmp/fil-2k-data:/data \
-  he426100/lotus-seed:v1.13.0-dev \
+  lotus-seed:v1.13.0-dev \
   --sector-dir /data/.genesis-sectors \
   pre-seal --sector-size=2KiB --num-sectors=2
 ```
@@ -35,7 +35,7 @@ docker run --rm \
 ```
 docker run --rm \
   -v /tmp/fil-2k-data:/data \
-  he426100/lotus-seed:v1.13.0-dev \
+  lotus-seed:v1.13.0-dev \
   genesis new /data/localnet.json
 ```
 
@@ -43,7 +43,7 @@ docker run --rm \
 ```
 docker run --rm \
   -v /tmp/fil-2k-data:/data \
-  he426100/lotus-seed:v1.13.0-dev \
+  lotus-seed:v1.13.0-dev \
   --sector-dir /data/.genesis-sectors \
   genesis add-miner /data/localnet.json /data/.genesis-sectors/pre-seal-t01000.json
 ```
@@ -59,7 +59,7 @@ docker run -d -it \
   --hostname fil-2k-master-lotus \
   --name fil-2k-master-lotus \
   -p 1234:1234 \
-  he426100/lotus:v1.13.0-dev \
+  lotus:v1.13.0-dev \
   daemon --lotus-make-genesis=/data/devgen.car --genesis-template=/data/localnet.json --bootstrap=false
 ```
 
@@ -88,7 +88,7 @@ docker run -d -it \
   --hostname fil-2k-master-miner \
   --name fil-2k-master-miner \
   -p 1235:2345 \
-  he426100/lotus-miner:v1.13.0-dev \
+  lotus-miner:v1.13.0-dev \
   run --nosync
 ```
 
@@ -112,7 +112,7 @@ docker run -d -it \
   --hostname fil-2k-miner-lotus \
   --name fil-2k-miner-lotus \
   -p 1236:1234 \
-  he426100/lotus:v1.13.0-dev \
+  lotus:v1.13.0-dev \
   daemon --genesis=/data/devgen.car --bootstrap=false
 
 # 查看token
@@ -161,7 +161,7 @@ docker run -d -it \
   --hostname fil-2k-miner-miner \
   --name fil-2k-miner-miner \
   -p 1237:2345 \
-  he426100/lotus-miner:v1.13.0-dev \
+  lotus-miner:v1.13.0-dev \
   run
 ```
 
