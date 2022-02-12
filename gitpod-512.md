@@ -201,8 +201,7 @@ docker exec -it fil-2k-miner-miner lotus-miner sectors batching precommit --publ
 docker exec -it fil-2k-miner-miner lotus-miner sectors batching commit --publish-now=true
 ```
 
+### 感谢 [https://gitpod.io/](https://gitpod.io/)
+
 参考资料
 > [FileCoin Louts本地2K开发/测试环境部署指南](https://ansheng.me/filecoin-louts-local-2k-development-test-environment-deployment-guide/)
-
-感谢
-> [https://gitpod.io/](https://gitpod.io/)
