@@ -1,6 +1,8 @@
 1. 构建镜像(官方的Dockerfile.lotus和scripts/docker-lotus-miner-entrypoint.sh有问题)
 ```
+git clone https://github.com/he426100/fil-2k.git
 git clone https://github.com/filecoin-project/lotus.git && cd lotus && git checkout v1.13.1
+cp -r ../fil-2k/* ./
 docker build -t lotus:v1.13.1-dev --target lotus -f Dockerfile.lotus-debug .
 docker build -t lotus-seed:v1.13.1-dev --target lotus-seed -f Dockerfile.lotus-debug .
 docker build -t lotus-miner:v1.13.1-dev --target lotus-miner -f Dockerfile.lotus-debug .
