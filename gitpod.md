@@ -174,7 +174,7 @@ docker exec -it fil-2k-miner-miner lotus-miner info
 ```
 docker exec -it fil-2k-miner-miner mkdir /data/t01002/
 docker exec -it fil-2k-miner-miner cp /var/lib/lotus-miner/config.toml /data/t01002/
-sudo vim /tmp/fil-2k-data/t01002/config.toml
+sudo vim /workspace/tmp/fil-2k-data/t01002/config.toml
 ```
 ```
 [Storage]
@@ -201,7 +201,7 @@ sudo vim /tmp/fil-2k-data/t01002/config.toml
 ```
 ```
 docker exec -it fil-2k-miner-miner cp /var/lib/lotus-miner/sectorstore.json /data/t01002/
-sudo vim /tmp/fil-2k-data/t01002/sectorstore.json
+sudo vim /workspace/tmp/fil-2k-data/t01002/sectorstore.json
 ```
 ```
 {
