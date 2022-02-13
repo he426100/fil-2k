@@ -170,30 +170,112 @@ docker run -d -it \
 docker exec -it fil-2k-miner-miner lotus-miner info
 ```
 
-19. 质押扇区（增加节点算力）
+19. 修改miner配置文件并重启
+```
+docker exec -it fil-2k-miner-miner mkdir /data/t01002/
+docker exec -it fil-2k-miner-miner cp /var/lib/lotus-miner/config.toml /data/t01002/
+sudo vim /tmp/fil-2k-data/t01002/config.toml
+```
+```
+[Storage]
+  # env var: LOTUS_STORAGE_PARALLELFETCHLIMIT
+  #ParallelFetchLimit = 10
+
+  # env var: LOTUS_STORAGE_ALLOWADDPIECE
+  AllowAddPiece = false
+
+  # env var: LOTUS_STORAGE_ALLOWPRECOMMIT1
+  AllowPreCommit1 = false
+
+  # env var: LOTUS_STORAGE_ALLOWPRECOMMIT2
+  AllowPreCommit2 = false
+
+  # env var: LOTUS_STORAGE_ALLOWCOMMIT
+  AllowCommit = false
+
+  # env var: LOTUS_STORAGE_ALLOWUNSEAL
+  AllowUnseal = false
+
+  # env var: LOTUS_STORAGE_RESOURCEFILTERING
+  #ResourceFiltering = "hardware"
+```
+```
+docker exec -it fil-2k-miner-miner cp /var/lib/lotus-miner/sectorstore.json /data/t01002/
+sudo vim /tmp/fil-2k-data/t01002/sectorstore.json
+```
+```
+{
+  "ID": "f7328656-4888-4dd7-bed5-aa2a1aa9a64f",
+  "Weight": 10,
+  "CanSeal": true,
+  "CanStore": false,
+  "MaxStorage": 0
+}
+```
+重启miner
+```
+docker exec -it fil-2k-miner-miner cp /data/t01002/config.toml /var/lib/lotus-miner/
+docker exec -it fil-2k-miner-miner cp /data/t01002/sectorstore.json /var/lib/lotus-miner/
+docker restart fil-2k-miner-miner
+```
+
+20. miner挂载/data/store当作存储目录
+```
+docker exec -it fil-2k-miner-miner mkdir -p /data/store/t01002
+docker exec -it fil-2k-miner-miner lotus-miner storage attach --init --store /data/store/t01002
+docker exec -it fil-2k-miner-miner lotus-miner storage list
+```
+
+21. 查看miner token
+```
+MINER_API_INFO=$(docker exec -it fil-2k-miner-miner lotus-miner auth api-info --perm admin | awk -F '=' '{print $2}'); \
+  MINER_IP=$(docker exec -it fil-2k-miner-miner cat /etc/hosts | grep fil-2k-miner-miner | awk '{print $1}') ; \
+  MINER_API_INFO=${MINER_API_INFO/0.0.0.0/$MINER_IP}; \
+  echo $MINER_API_INFO;
+```
+
+22. 启动worker
+```
+docker run -d -it \
+  -e MINER_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.d43jQM92sDe-wJQRq6RkuP3Wk9r9lTgbYsgUlD2gwTk:/ip4/172.17.0.5/tcp/2345/http" \
+  -e RUST_LOG=info \
+  -v /workspace/tmp/fil-2k-data:/data \
+  -v /workspace/tmp/filecoin-proof-parameters:/var/tmp/filecoin-proof-parameters \
+  --hostname fil-2k-miner-worker \
+  --name fil-2k-miner-worker \
+  -p 1238:3456 \
+  lotus-worker:v1.13.0-dev \
+  run
+```
+
+23. worker挂载存储目录
+```
+docker exec -it fil-2k-miner-worker lotus-worker storage attach --store /data/store/t01002
+docker exec -it fil-2k-miner-worker lotus-worker info
+```
+
+24. 查看worker
+```
+docker exec -it fil-2k-miner-miner lotus-miner sealing workers
+docker exec -it fil-2k-miner-miner lotus-miner storage list
+```
+
+25. 质押
 ```
 docker exec -it fil-2k-miner-miner lotus-miner sectors pledge
 ```
 
-20. 查看扇区ID，获取扇区列表
+26. 查看扇区ID，获取扇区列表
 ```
 docker exec -it fil-2k-miner-miner lotus-miner sectors list
 ```
 
-21. 查看扇区信息
+27. 查看扇区信息
 ```
 # 查看具体的某个扇区的状态（示例中显示的是扇区 0 的状态）
 docker exec -it fil-2k-miner-miner lotus-miner sectors status 0
 # 查看 0 号扇区的详细日志信息
 docker exec -it fil-2k-miner-miner lotus-miner sectors status --log 0
-```
-
-22. 提交batch
-```
-# SubmitPreCommitBatch 状态
-docker exec -it fil-2k-miner-miner lotus-miner sectors batching precommit --publish-now=true
-#  SubmitCommitAggregate 状态
-docker exec -it fil-2k-miner-miner lotus-miner sectors batching commit --publish-now=true
 ```
 
 ### 感谢 [https://gitpod.io/](https://gitpod.io/)
