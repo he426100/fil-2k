@@ -15,7 +15,7 @@ docker build -t lotus-worker:v1.13.0-dev --target lotus-worker -f Dockerfile.lot
 mkdir -p /workspace/tmp/fil-2k-data && sudo chown 532:532 /workspace/tmp/fil-2k-data
 mkdir -p /workspace/tmp/fil-2k-lotus && sudo chown 532:532 /workspace/tmp/fil-2k-lotus
 mkdir -p /workspace/tmp/fil-2k-lotus-miner && sudo chown 532:532 /workspace/tmp/fil-2k-lotus-miner
-mkdir -p /var/tmp/filecoin-proof-parameters && sudo chown 532:532 /var/tmp/filecoin-proof-parameters
+mkdir -p /workspace/tmp/filecoin-proof-parameters && sudo chown 532:532 /workspace/tmp/filecoin-proof-parameters
 # 第二次
 sudo rm -r /workspace/tmp/fil-2k-data/*
 sudo rm -r /workspace/tmp/fil-2k-data/.genesis-sectors
