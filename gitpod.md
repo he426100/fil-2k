@@ -15,6 +15,7 @@ docker build -t lotus-worker:v1.13.0-dev --target lotus-worker -f Dockerfile.lot
 mkdir -p /workspace/tmp/fil-2k-data && sudo chown 532:532 /workspace/tmp/fil-2k-data
 mkdir -p /workspace/tmp/fil-2k-lotus && sudo chown 532:532 /workspace/tmp/fil-2k-lotus
 mkdir -p /workspace/tmp/fil-2k-lotus-miner && sudo chown 532:532 /workspace/tmp/fil-2k-lotus-miner
+mkdir -p /workspace/tmp/fil-2k-lotus-worker && sudo chown 532:532 /workspace/tmp/fil-2k-lotus-worker
 mkdir -p /workspace/tmp/filecoin-proof-parameters && sudo chown 532:532 /workspace/tmp/filecoin-proof-parameters
 # 第二次
 sudo rm -r /workspace/tmp/fil-2k-data/*
@@ -55,7 +56,6 @@ docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/1234/http" \
   -e DOCKER_LOTUS_IMPORT_SNAPSHOT="" \
   -v /workspace/tmp/fil-2k-data:/data \
-  -v /workspace/tmp/fil-2k-lotus:/var/lib/lotus \
   -v /workspace/tmp/filecoin-proof-parameters:/var/tmp/filecoin-proof-parameters \
   --hostname fil-2k-master-lotus \
   --name fil-2k-master-lotus \
@@ -77,18 +77,16 @@ FULLNODE_API_INFO=$(docker exec -it fil-2k-master-lotus lotus auth api-info --pe
 
 8. 初始化并运行创世矿工
 ```
-# wsl2下不知道为啥不能用2345端口
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/2345/http" \
   -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.iXcdXIZoRqs6_qw-c0d4xROczHFwQycMMZX7coH_scQ:/ip4/172.17.0.2/tcp/1234/http" \
   -e DOCKER_LOTUS_MINER_INIT=true \
   -e DOCKER_LOTUS_MINER_INIT_ARGS="--genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=/data/.genesis-sectors --pre-sealed-metadata=/data/.genesis-sectors/pre-seal-t01000.json --nosync" \
   -v /workspace/tmp/fil-2k-data:/data \
-  -v /workspace/tmp/fil-2k-lotus-miner:/var/lib/lotus-miner \
   -v /workspace/tmp/filecoin-proof-parameters:/var/tmp/filecoin-proof-parameters \
   --hostname fil-2k-master-miner \
   --name fil-2k-master-miner \
-  -p 1235:2345 \
+  -p 2345:2345 \
   lotus-miner:v1.13.0-dev \
   run --nosync
 ```
@@ -109,10 +107,11 @@ docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/1234/http" \
   -e DOCKER_LOTUS_IMPORT_SNAPSHOT="" \
   -v /workspace/tmp/fil-2k-data:/data \
+  -v /workspace/tmp/fil-2k-lotus:/var/lib/lotus \
   -v /workspace/tmp/filecoin-proof-parameters:/var/tmp/filecoin-proof-parameters \
   --hostname fil-2k-miner-lotus \
   --name fil-2k-miner-lotus \
-  -p 1236:1234 \
+  -p 1235:1234 \
   lotus:v1.13.0-dev \
   daemon --genesis=/data/devgen.car --bootstrap=false
 
@@ -157,10 +156,11 @@ docker run -d -it \
   -e DOCKER_LOTUS_MINER_INIT_ARGS="--sector-size=2KiB" \
   -e RUST_LOG=info \
   -v /workspace/tmp/fil-2k-data:/data \
+  -v /workspace/tmp/fil-2k-lotus-miner:/var/lib/lotus-miner \
   -v /workspace/tmp/filecoin-proof-parameters:/var/tmp/filecoin-proof-parameters \
   --hostname fil-2k-miner-miner \
   --name fil-2k-miner-miner \
-  -p 1237:2345 \
+  -p 2346:2345 \
   lotus-miner:v1.13.0-dev \
   run
 ```
@@ -172,9 +172,7 @@ docker exec -it fil-2k-miner-miner lotus-miner info
 
 19. 修改miner配置文件并重启
 ```
-docker exec -it fil-2k-miner-miner mkdir /data/t01002/
-docker exec -it fil-2k-miner-miner cp /var/lib/lotus-miner/config.toml /data/t01002/
-sudo vim /workspace/tmp/fil-2k-data/t01002/config.toml
+sudo vim /workspace/tmp/fil-2k-lotus-miner/config.toml
 ```
 ```
 [Storage]
@@ -200,8 +198,7 @@ sudo vim /workspace/tmp/fil-2k-data/t01002/config.toml
   #ResourceFiltering = "hardware"
 ```
 ```
-docker exec -it fil-2k-miner-miner cp /var/lib/lotus-miner/sectorstore.json /data/t01002/
-sudo vim /workspace/tmp/fil-2k-data/t01002/sectorstore.json
+sudo vim /workspace/tmp/fil-2k-lotus-miner/sectorstore.json
 ```
 ```
 {
@@ -214,8 +211,6 @@ sudo vim /workspace/tmp/fil-2k-data/t01002/sectorstore.json
 ```
 重启miner
 ```
-docker exec -it fil-2k-miner-miner cp /data/t01002/config.toml /var/lib/lotus-miner/
-docker exec -it fil-2k-miner-miner cp /data/t01002/sectorstore.json /var/lib/lotus-miner/
 docker restart fil-2k-miner-miner
 ```
 
@@ -240,6 +235,7 @@ docker run -d -it \
   -e MINER_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.d43jQM92sDe-wJQRq6RkuP3Wk9r9lTgbYsgUlD2gwTk:/ip4/172.17.0.5/tcp/2345/http" \
   -e RUST_LOG=info \
   -v /workspace/tmp/fil-2k-data:/data \
+  -v /workspace/tmp/fil-2k-lotus-worker:/var/lib/lotus-worker \
   -v /workspace/tmp/filecoin-proof-parameters:/var/tmp/filecoin-proof-parameters \
   --hostname fil-2k-miner-worker \
   --name fil-2k-miner-worker \
