@@ -70,7 +70,7 @@ docker exec -it fil-2k-master-lotus lotus wallet list
 # 查看token
 FULLNODE_API_INFO=$(docker exec -it fil-2k-master-lotus lotus auth api-info --perm admin | awk -F '=' '{print $2}'); \
   LOTUS_IP=$(docker exec -it fil-2k-master-lotus cat /etc/hosts | grep fil-2k-master-lotus | awk '{print $1}'); \
-  FULLNODE_API_INFO=${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP}; \
+  FULLNODE_API_INFO=$(echo ${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP} | sed -e 's/\r//g'); \
   echo $FULLNODE_API_INFO;
 ```
 
@@ -79,7 +79,7 @@ FULLNODE_API_INFO=$(docker exec -it fil-2k-master-lotus lotus auth api-info --pe
 # wsl2下不知道为啥不能用2345端口
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/2345/http" \
-  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.ZQG6t8N4em0NmU5l8XEOL8Il6hzZimv24UbF5yyOOoc:/ip4/172.17.0.1/tcp/1234/http" \
+  -e FULLNODE_API_INFO="$FULLNODE_API_INFO" \
   -e DOCKER_LOTUS_MINER_INIT=true \
   -e DOCKER_LOTUS_MINER_INIT_ARGS="--genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=/data/.genesis-sectors --pre-sealed-metadata=/data/.genesis-sectors/pre-seal-t01000.json --nosync" \
   -v /tmp/fil-2k-data:/data \
@@ -96,12 +96,7 @@ docker run -d -it \
 docker exec -it fil-2k-master-miner lotus-miner info
 ```
 
-10. fil-2k-master上获取创世节点的连接信息
-```
-docker exec -it fil-2k-master-lotus lotus net listen | grep "172"
-```
-
-11. 启动另一个节点
+10. 启动另一个节点
 ```
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/1234/http" \
@@ -118,40 +113,35 @@ docker run -d -it \
 # 查看token
 FULLNODE_API_INFO=$(docker exec -it fil-2k-miner-lotus lotus auth api-info --perm admin | awk -F '=' '{print $2}'); \
   LOTUS_IP=$(docker exec -it fil-2k-miner-lotus cat /etc/hosts | grep fil-2k-miner-lotus | awk '{print $1}'); \
-  FULLNODE_API_INFO=${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP}; \
+  FULLNODE_API_INFO=$(echo ${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP} | sed -e 's/\r//g'); \
   echo $FULLNODE_API_INFO;
 ```
 
-12. fil-2k-miner上连接到创世节点
+11. fil-2k-miner上连接到创世节点
 ```
-docker exec -it fil-2k-miner-lotus lotus net connect /ip4/172.17.0.4/tcp/35865/p2p/12D3KooWRfAohghF392iKGwLz5rqK6TkjkJzaLxjNKFU7igg624q
+docker exec -it fil-2k-miner-lotus lotus net connect $(docker exec -it fil-2k-master-lotus lotus net listen | grep "172" | sed -e 's/\r//g')
 ```
 
-13. 查看当前节点的同步状态
+12. 查看当前节点的同步状态
 ```
 docker exec -it fil-2k-miner-lotus lotus sync status
 ```
 
-14. 创建BLS类型的钱包
+13. 创建BLS类型的钱包并从创世节点处装100个FIL到当前钱包
 ```
-docker exec -it fil-2k-miner-lotus lotus wallet new bls
-```
-
-15. 从创世节点处装100个FIL到当前钱包
-```
-docker exec -it fil-2k-master-lotus lotus send t3qfwutf7edp265gx5ynzjf5wfr4wt374ne25q6jjedatr7of7fzz3exiqjl4sn435cmg7x2qneerwyhf3mqeq 100
+docker exec -it fil-2k-master-lotus lotus send $(docker exec -it fil-2k-miner-lotus lotus wallet new bls | sed -e 's/\r//g') 100
 ```
 
-16. 检查余额
+14. 检查余额
 ```
 docker exec -it fil-2k-miner-lotus lotus wallet list
 ```
 
-17. 初始化并运行新节点
+15. 初始化并运行新节点
 ```
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/2345/http" \
-  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.D1gU6utQNWb8BroSMu0ZL13fAksm9PQzGRSxSLNi5pg:/ip4/172.17.0.6/tcp/1234/http" \
+  -e FULLNODE_API_INFO="$FULLNODE_API_INFO" \
   -e DOCKER_LOTUS_MINER_INIT=true \
   -e DOCKER_LOTUS_MINER_INIT_ARGS="--sector-size=2KiB" \
   -e RUST_LOG=info \
@@ -166,22 +156,22 @@ docker run -d -it \
   run
 ```
 
-18. 查看新节点
+16. 查看新节点
 ```
 docker exec -it fil-2k-miner-miner lotus-miner info
 ```
 
-19. 质押扇区（增加节点算力）
+17. 质押扇区（增加节点算力）
 ```
 docker exec -it fil-2k-miner-miner lotus-miner sectors pledge
 ```
 
-20. 查看扇区ID，获取扇区列表
+18. 查看扇区ID，获取扇区列表
 ```
 docker exec -it fil-2k-miner-miner lotus-miner sectors list
 ```
 
-21. 查看扇区信息
+19. 查看扇区信息
 ```
 # 查看具体的某个扇区的状态（示例中显示的是扇区 0 的状态）
 docker exec -it fil-2k-miner-miner lotus-miner sectors status 0
@@ -189,7 +179,7 @@ docker exec -it fil-2k-miner-miner lotus-miner sectors status 0
 docker exec -it fil-2k-miner-miner lotus-miner sectors status --log 0
 ```
 
-22. 提交batch
+20. 提交batch
 ```
 # SubmitPreCommitBatch 状态
 docker exec -it fil-2k-miner-miner lotus-miner sectors batching precommit --publish-now=true

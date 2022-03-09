@@ -70,8 +70,8 @@ docker exec -it fil-2k-master-lotus lotus wallet import --as-default /data/.gene
 docker exec -it fil-2k-master-lotus lotus wallet list
 # 查看token
 FULLNODE_API_INFO=$(docker exec -it fil-2k-master-lotus lotus auth api-info --perm admin | awk -F '=' '{print $2}'); \
-  LOTUS_IP=$(docker exec -it fil-2k-master-lotus cat /etc/hosts | grep fil-2k-master-lotus | awk '{print $1}') ; \
-  FULLNODE_API_INFO=${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP}; \
+  LOTUS_IP=$(docker exec -it fil-2k-master-lotus cat /etc/hosts | grep fil-2k-master-lotus | awk '{print $1}'); \
+  FULLNODE_API_INFO=$(echo ${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP} | sed -e 's/\r//g'); \
   echo $FULLNODE_API_INFO;
 ```
 
@@ -79,7 +79,7 @@ FULLNODE_API_INFO=$(docker exec -it fil-2k-master-lotus lotus auth api-info --pe
 ```
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/2345/http" \
-  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.iXcdXIZoRqs6_qw-c0d4xROczHFwQycMMZX7coH_scQ:/ip4/172.17.0.2/tcp/1234/http" \
+  -e FULLNODE_API_INFO="$FULLNODE_API_INFO" \
   -e DOCKER_LOTUS_MINER_INIT=true \
   -e DOCKER_LOTUS_MINER_INIT_ARGS="--genesis-miner --actor=t01000 --sector-size=2KiB --pre-sealed-sectors=/data/.genesis-sectors --pre-sealed-metadata=/data/.genesis-sectors/pre-seal-t01000.json --nosync" \
   -v /workspace/tmp/fil-2k-data:/data \
@@ -96,12 +96,7 @@ docker run -d -it \
 docker exec -it fil-2k-master-miner lotus-miner info
 ```
 
-10. fil-2k-master上获取创世节点的连接信息
-```
-docker exec -it fil-2k-master-lotus lotus net listen | grep "172"
-```
-
-11. 启动另一个节点
+10. 启动另一个节点
 ```
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/1234/http" \
@@ -118,40 +113,35 @@ docker run -d -it \
 # 查看token
 FULLNODE_API_INFO=$(docker exec -it fil-2k-miner-lotus lotus auth api-info --perm admin | awk -F '=' '{print $2}'); \
   LOTUS_IP=$(docker exec -it fil-2k-miner-lotus cat /etc/hosts | grep fil-2k-miner-lotus | awk '{print $1}'); \
-  FULLNODE_API_INFO=${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP}; \
+  FULLNODE_API_INFO=$(echo ${FULLNODE_API_INFO/0.0.0.0/$LOTUS_IP} | sed -e 's/\r//g'); \
   echo $FULLNODE_API_INFO;
 ```
 
-12. fil-2k-miner上连接到创世节点
+11. fil-2k-miner上连接到创世节点
 ```
-docker exec -it fil-2k-miner-lotus lotus net connect /ip4/172.17.0.2/tcp/34879/p2p/12D3KooWBSDyTJAtHF4F1wXd8L1hbcXR3H62oaV1DJjSBNcpjTVf
+docker exec -it fil-2k-miner-lotus lotus net connect $(docker exec -it fil-2k-master-lotus lotus net listen | grep "172" | sed -e 's/\r//g')
 ```
 
-13. 查看当前节点的同步状态
+12. 查看当前节点的同步状态
 ```
 docker exec -it fil-2k-miner-lotus lotus sync status
 ```
 
-14. 创建BLS类型的钱包
+13. 创建BLS类型的钱包并从创世节点处装100个FIL到当前钱包
 ```
-docker exec -it fil-2k-miner-lotus lotus wallet new bls
-```
-
-15. 从创世节点处装100个FIL到当前钱包
-```
-docker exec -it fil-2k-master-lotus lotus send t3qfwutf7edp265gx5ynzjf5wfr4wt374ne25q6jjedatr7of7fzz3exiqjl4sn435cmg7x2qneerwyhf3mqeq 100
+docker exec -it fil-2k-master-lotus lotus send $(docker exec -it fil-2k-miner-lotus lotus wallet new bls | sed -e 's/\r//g') 100
 ```
 
-16. 检查余额
+14. 检查余额
 ```
 docker exec -it fil-2k-miner-lotus lotus wallet list
 ```
 
-17. 初始化并运行新节点
+15. 初始化并运行新节点
 ```
 docker run -d -it \
   -e LOTUS_API_LISTENADDRESS="/ip4/0.0.0.0/tcp/2345/http" \
-  -e FULLNODE_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.Ru0z9bu6kL74h3UMyMGlesdXrsc2OzOSZDfkBycnhcM:/ip4/172.17.0.4/tcp/1234/http" \
+  -e FULLNODE_API_INFO="$FULLNODE_API_INFO" \
   -e DOCKER_LOTUS_MINER_INIT=true \
   -e DOCKER_LOTUS_MINER_INIT_ARGS="--sector-size=2KiB" \
   -e RUST_LOG=info \
@@ -165,12 +155,12 @@ docker run -d -it \
   run
 ```
 
-18. 查看新节点
+16. 查看新节点
 ```
 docker exec -it fil-2k-miner-miner lotus-miner info
 ```
 
-19. 修改miner配置文件并重启
+17. 修改miner配置文件并重启
 ```
 sudo vim /workspace/tmp/fil-2k-lotus-miner/config.toml
 ```
@@ -214,25 +204,25 @@ sudo vim /workspace/tmp/fil-2k-lotus-miner/sectorstore.json
 docker restart fil-2k-miner-miner
 ```
 
-20. miner挂载/data/store当作存储目录
+18. miner挂载/data/store当作存储目录
 ```
 docker exec -it fil-2k-miner-miner mkdir -p /data/store/t01002
 docker exec -it fil-2k-miner-miner lotus-miner storage attach --init --store /data/store/t01002
 docker exec -it fil-2k-miner-miner lotus-miner storage list
 ```
 
-21. 查看miner token
+19. 查看miner token
 ```
 MINER_API_INFO=$(docker exec -it fil-2k-miner-miner lotus-miner auth api-info --perm admin | awk -F '=' '{print $2}'); \
   MINER_IP=$(docker exec -it fil-2k-miner-miner cat /etc/hosts | grep fil-2k-miner-miner | awk '{print $1}') ; \
-  MINER_API_INFO=${MINER_API_INFO/0.0.0.0/$MINER_IP}; \
+  MINER_API_INFO=$(echo ${MINER_API_INFO/0.0.0.0/$MINER_IP} | sed -e 's/\r//g'); \
   echo $MINER_API_INFO;
 ```
 
-22. 启动worker
+20. 启动worker
 ```
 docker run -d -it \
-  -e MINER_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.d43jQM92sDe-wJQRq6RkuP3Wk9r9lTgbYsgUlD2gwTk:/ip4/172.17.0.5/tcp/2345/http" \
+  -e MINER_API_INFO="$MINER_API_INFO" \
   -e RUST_LOG=info \
   -v /workspace/tmp/fil-2k-data:/data \
   -v /workspace/tmp/fil-2k-lotus-worker:/var/lib/lotus-worker \

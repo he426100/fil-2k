@@ -58,14 +58,14 @@ docker exec -it fil-2k-miner-miner lotus-miner storage list
 ```
 MINER_API_INFO=$(docker exec -it fil-2k-miner-miner lotus-miner auth api-info --perm admin | awk -F '=' '{print $2}'); \
   MINER_IP=$(docker exec -it fil-2k-miner-miner cat /etc/hosts | grep fil-2k-miner-miner | awk '{print $1}') ; \
-  MINER_API_INFO=${MINER_API_INFO/0.0.0.0/$MINER_IP}; \
+  MINER_API_INFO=$(echo ${MINER_API_INFO/0.0.0.0/$MINER_IP} | sed -e 's/\r//g'); \
   echo $MINER_API_INFO;
 ```
 
 4. 启动worker
 ```
 docker run -d -it \
-  -e MINER_API_INFO="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.d43jQM92sDe-wJQRq6RkuP3Wk9r9lTgbYsgUlD2gwTk:/ip4/172.17.0.5/tcp/2345/http" \
+  -e MINER_API_INFO="$MINER_API_INFO" \
   -e FIL_PROOFS_USE_GPU_COLUMN_BUILDER=1 \
   -e FIL_PROOFS_USE_GPU_TREE_BUILDER=1 \
   -e RUST_LOG=info \
