@@ -20,6 +20,7 @@ sudo rm -r /workspace/tmp/fil-2k-data/*
 sudo rm -r /workspace/tmp/fil-2k-data/.genesis-sectors
 sudo rm -r /workspace/tmp/fil-2k-lotus/*
 sudo rm -r /workspace/tmp/fil-2k-lotus-miner/*
+sudo rm -r /workspace/tmp/fil-2k-lotus-worker/*
 ```
 
 3. 预密封两个2KiB大小的扇区
