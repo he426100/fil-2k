@@ -1,4 +1,4 @@
-FROM golang:1.16.4 AS builder-deps
+FROM golang:1.17.9-buster AS builder-deps
 MAINTAINER Lotus Development Team
 
 RUN apt-get update && apt-get install -y ca-certificates build-essential clang ocl-icd-opencl-dev ocl-icd-libopencl1 jq libhwloc-dev
@@ -33,7 +33,7 @@ MAINTAINER Lotus Development Team
 
 WORKDIR /opt/filecoin
 
-RUN make debug lotus-bench
+RUN make debug lotus lotus-miner lotus-worker lotus-shed lotus-wallet lotus-gateway lotus-bench
 
 
 FROM ubuntu:20.04 AS base
@@ -64,6 +64,7 @@ COPY scripts/docker-lotus-entrypoint.sh /
 
 ENV FILECOIN_PARAMETER_CACHE /var/tmp/filecoin-proof-parameters
 ENV LOTUS_PATH /var/lib/lotus
+ENV DOCKER_LOTUS_IMPORT_SNAPSHOT https://fil-chain-snapshots-fallback.s3.amazonaws.com/mainnet/minimal_finality_stateroots_latest.car
 ENV DOCKER_LOTUS_IMPORT_WALLET ""
 
 RUN mkdir /var/lib/lotus /var/tmp/filecoin-proof-parameters
@@ -80,6 +81,56 @@ ENTRYPOINT ["/docker-lotus-entrypoint.sh"]
 
 CMD ["-help"]
 
+###
+FROM base AS lotus-wallet
+MAINTAINER Lotus Development Team
+
+COPY --from=builder-test /opt/filecoin/lotus-wallet /usr/local/bin/
+
+ENV WALLET_PATH /var/lib/lotus-wallet
+
+RUN mkdir /var/lib/lotus-wallet
+RUN chown fc: /var/lib/lotus-wallet
+
+VOLUME /var/lib/lotus-wallet
+
+USER fc
+
+EXPOSE 1777
+
+ENTRYPOINT ["/usr/local/bin/lotus-wallet"]
+
+CMD ["-help"]
+
+###
+FROM base AS lotus-gateway
+MAINTAINER Lotus Development Team
+
+COPY --from=builder-test /opt/filecoin/lotus-gateway /usr/local/bin/
+
+USER fc
+
+EXPOSE 1234
+
+ENTRYPOINT ["/usr/local/bin/lotus-gateway"]
+
+CMD ["-help"]
+
+
+###
+FROM base AS lotus-seed
+MAINTAINER Lotus Development Team
+
+COPY --from=builder-test /opt/filecoin/lotus-seed /usr/local/bin/
+
+USER fc
+
+EXPOSE 1234
+
+ENTRYPOINT ["/usr/local/bin/lotus-seed"]
+
+CMD ["-help"]
+
 
 ###
 FROM base AS lotus-miner
@@ -90,9 +141,6 @@ COPY scripts/docker-lotus-miner-entrypoint.sh /
 
 ENV FILECOIN_PARAMETER_CACHE /var/tmp/filecoin-proof-parameters
 ENV LOTUS_MINER_PATH /var/lib/lotus-miner
-# rust log
-ENV RUST_LOG info
-ENV RUST_BACKTRACE full
 
 RUN mkdir /var/lib/lotus-miner /var/tmp/filecoin-proof-parameters
 RUN chown fc: /var/lib/lotus-miner /var/tmp/filecoin-proof-parameters
@@ -117,9 +165,6 @@ COPY --from=builder-test /opt/filecoin/lotus-worker /usr/local/bin/
 
 ENV FILECOIN_PARAMETER_CACHE /var/tmp/filecoin-proof-parameters
 ENV LOTUS_WORKER_PATH /var/lib/lotus-worker
-# rust log
-ENV RUST_LOG info
-ENV RUST_BACKTRACE full
 
 RUN mkdir /var/lib/lotus-worker
 RUN chown fc: /var/lib/lotus-worker
@@ -141,6 +186,7 @@ MAINTAINER Lotus Development Team
 
 COPY --from=builder-test /opt/filecoin/lotus-bench /usr/local/bin/
 
+# 运行lotus-worker需要的环境变量
 ENV FILECOIN_PARAMETER_CACHE /var/tmp/filecoin-proof-parameters
 
 ENV RUST_LOG=info \
@@ -149,18 +195,5 @@ ENV RUST_LOG=info \
 USER fc
 
 ENTRYPOINT ["/usr/local/bin/lotus-bench"]
-
-CMD ["-help"]
-
-
-###
-FROM base AS lotus-seed
-MAINTAINER Lotus Development Team
-
-COPY --from=builder-test /opt/filecoin/lotus-seed /usr/local/bin/
-
-USER fc
-
-ENTRYPOINT ["/usr/local/bin/lotus-seed"]
 
 CMD ["-help"]
