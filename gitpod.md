@@ -267,4 +267,4 @@ docker exec -it fil-2k-miner-miner lotus-miner sectors status --log 0
 
 参考资料  
 [Developer network | Filecoin Docs](https://docs.filecoin.io/build/local-devnet/)  
-[FileCoin Louts本地2K开发/测试环境部署指南](https://ansheng.me/filecoin-louts-local-2k-development-test-environment-deployment-guide/)
+[FileCoin Louts本地2K开发/测试环境部署指南](https://ansheng.me/post/filecoin-louts-local-2k-development-test-environment-deployment-guide)
