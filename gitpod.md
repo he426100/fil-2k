@@ -1,6 +1,7 @@
 1. 构建镜像
 ```
 git clone https://github.com/filecoin-project/lotus.git && cd lotus && git checkout v1.16.0
+wget https://raw.githubusercontent.com/he426100/fil-2k/master/Dockerfile.lotus-debug
 docker build -t lotus:v1.16.0-dev --target lotus -f Dockerfile.lotus-debug .
 docker build -t lotus-seed:v1.16.0-dev --target lotus-seed -f Dockerfile.lotus-debug .
 docker build -t lotus-miner:v1.16.0-dev --target lotus-miner -f Dockerfile.lotus-debug .
