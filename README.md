@@ -1,11 +1,11 @@
 1. 构建镜像
 ```
-git clone https://github.com/filecoin-project/lotus.git && cd lotus && git checkout v1.16.0
+git clone https://github.com/filecoin-project/lotus.git && cd lotus && git checkout v1.20.1
 wget https://raw.githubusercontent.com/he426100/fil-2k/master/Dockerfile.lotus-debug
-docker build -t lotus:v1.16.0-dev --target lotus -f Dockerfile.lotus-debug .
-docker build -t lotus-seed:v1.16.0-dev --target lotus-seed -f Dockerfile.lotus-debug .
-docker build -t lotus-miner:v1.16.0-dev --target lotus-miner -f Dockerfile.lotus-debug .
-docker build -t lotus-worker:v1.16.0-dev --target lotus-worker -f Dockerfile.lotus-debug .
+docker build -t lotus:v1.20.1-dev --target lotus -f Dockerfile.lotus-debug .
+docker build -t lotus-seed:v1.20.1-dev --target lotus-seed -f Dockerfile.lotus-debug .
+docker build -t lotus-miner:v1.20.1-dev --target lotus-miner -f Dockerfile.lotus-debug .
+docker build -t lotus-worker:v1.20.1-dev --target lotus-worker -f Dockerfile.lotus-debug .
 ```
 
 2. 创建或清空相关文件
@@ -26,7 +26,7 @@ sudo rm -r /tmp/fil-2k-lotus-miner/*
 ```
 docker run --rm \
   -v /tmp/fil-2k-data:/data \
-  lotus-seed:v1.16.0-dev \
+  lotus-seed:v1.20.1-dev \
   --sector-dir /data/.genesis-sectors \
   pre-seal --sector-size=2KiB --num-sectors=2
 ```
@@ -35,7 +35,7 @@ docker run --rm \
 ```
 docker run --rm \
   -v /tmp/fil-2k-data:/data \
-  lotus-seed:v1.16.0-dev \
+  lotus-seed:v1.20.1-dev \
   genesis new /data/localnet.json
 ```
 
@@ -43,7 +43,7 @@ docker run --rm \
 ```
 docker run --rm \
   -v /tmp/fil-2k-data:/data \
-  lotus-seed:v1.16.0-dev \
+  lotus-seed:v1.20.1-dev \
   --sector-dir /data/.genesis-sectors \
   genesis add-miner /data/localnet.json /data/.genesis-sectors/pre-seal-t01000.json
 ```
@@ -58,7 +58,7 @@ docker run -d -it \
   --hostname fil-2k-master-lotus \
   --name fil-2k-master-lotus \
   -p 1234:1234 \
-  lotus:v1.16.0-dev \
+  lotus:v1.20.1-dev \
   daemon --lotus-make-genesis=/data/devgen.car --genesis-template=/data/localnet.json --bootstrap=false
 ```
 
@@ -86,7 +86,7 @@ docker run -d -it \
   --hostname fil-2k-master-miner \
   --name fil-2k-master-miner \
   -p 1235:2345 \
-  lotus-miner:v1.16.0-dev \
+  lotus-miner:v1.20.1-dev \
   run --nosync
 ```
 
@@ -106,7 +106,7 @@ docker run -d -it \
   --hostname fil-2k-miner-lotus \
   --name fil-2k-miner-lotus \
   -p 1236:1234 \
-  lotus:v1.16.0-dev \
+  lotus:v1.20.1-dev \
   daemon --genesis=/data/devgen.car --bootstrap=false
 
 # 查看token
@@ -151,7 +151,7 @@ docker run -d -it \
   --hostname fil-2k-miner-miner \
   --name fil-2k-miner-miner \
   -p 1237:2345 \
-  lotus-miner:v1.16.0-dev \
+  lotus-miner:v1.20.1-dev \
   run
 ```
 
