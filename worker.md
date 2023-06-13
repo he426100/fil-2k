@@ -75,7 +75,7 @@ docker run -d -it \
   --hostname fil-2k-miner-worker \
   --name fil-2k-miner-worker \
   -p 1238:3456 \
-  lotus-worker:v1.20.4-dev \
+  lotus-worker:v1.23.0-dev \
   run
 ```
 
